@@ -1033,6 +1033,19 @@ describe('event plugin test', () => {
                 delete testEvent.builds;
             });
         });
+
+        it('skips requests to GitHub if scmRepo is available', () => {
+            pipelineMock.scmRepo = { name: 'repository-name' };
+            eventConfig.sha = 'repository-name';
+
+            return server.inject(options).then(reply => {
+                assert.equal(reply.statusCode, 201);
+                assert.calledWith(eventFactoryMock.create, eventConfig);
+                assert.strictEqual(reply.headers.location, urlLib.format(expectedLocation));
+                assert.notCalled(eventFactoryMock.scm.getCommitSha);
+                assert.notCalled(eventFactoryMock.scm.getPrInfo);
+            });
+        });
     });
 
     describe('PUT /events/{id}/stop', () => {

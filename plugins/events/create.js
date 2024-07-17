@@ -201,12 +201,16 @@ module.exports = () => ({
 
             let sha;
 
-            try {
-                // User has good permissions, create an event
-                sha = await scm.getCommitSha(scmConfig);
-            } catch (err) {
-                if (err.statusCode) {
-                    throw boom.boomify(err, { statusCode: err.statusCode });
+            if (pipeline.scmRepo) {
+                sha = pipeline.scmRepo.name;
+            } else {
+                try {
+                    // User has good permissions, create an event
+                    sha = await scm.getCommitSha(scmConfig);
+                } catch (err) {
+                    if (err.statusCode) {
+                        throw boom.boomify(err, { statusCode: err.statusCode });
+                    }
                 }
             }
 
